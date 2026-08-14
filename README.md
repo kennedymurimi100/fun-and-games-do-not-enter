@@ -1,102 +1,194 @@
 # fun-and-games-do-not-enter
-Absolutely 😂🫡 we'll call it here for today. And honestly, this is a good stopping point—we've made a solid chunk of progress without rushing through the assignment.
-
-🎮 Week 9 checkpoint
-
-Today we completed:
-
-✅ Create Post page
-✅ /create-post route
-✅ Create Post navigation link
-✅ Controlled Create Post form
-✅ Local post state in App.jsx
-✅ New posts displayed in Posts
-✅ Local post details support
-✅ Posts search/filter
-✅ Shared component library:
-✅ Button
-✅ Input
-✅ Card
-✅ Modal
-✅ Avatar
-✅ Shared index.js
-✅ Started using the reusable Input in CreatePost.jsx
-🛑 Where we're stopping
-
-Exactly here:
-
-CreatePost.jsx has been updated to use the reusable Input component.
-
-🔜 Next time
-
-We'll continue from here—not restart anything.
-
-The next logical step is to continue integrating the reusable components and then work through the remaining Week 9 assignment requirements, including styling and final testing.😂🎮. When you return,
-🎮 Our next Week 9 tasks
-
-We'll go in this order:
-
-Finish reusable component integration
-Use Button in the Create Post form.
-Use Card for displaying posts.
-Make sure Modal and Avatar are actually usable where appropriate.
-Finish the Create Post UI
-Make sure the form is clean and functional.
-Keep the controlled-form/local-state behavior we've already built.
-
-Styling
-
-Improve the navigation spacing.
-Style the shared components.
-Style post cards, forms, buttons, inputs, etc.
-Make the CommunityHub UI responsive.
-
-The assignment specifically calls for responsive/mobile-first styling and a consistent design system.
-
-Check the remaining assignment requirements
-Loading states
-Error states
-Routing
-API integration
-Create Post/local state
-Reusable components
-Optional/stretch features
-We already started the search/filter.
-If the required work is solid, we can look at things like pagination, sorting, or other stretch requirements.
-Final testing
-We'll systematically test:
-/
-/posts
-/posts/1
-/create-post
-/about
-invalid route → NotFound
-creating a post
-searching posts
-navigation
-refresh/error behavior
-Final cleanup
-Check the file structure.
-Remove anything unnecessary.
-Make sure there are no console errors.
-Make sure the code matches the assignment rather than just "looking like it works."
-Git checkpoint + submission
-git status
-git add .
-commit
-git push
-then verify the GitHub repository.
-🛑 Our exact starting point next time
-
-We'll start from:
-
-Step 29 — CreatePost.jsx is using the reusable Input component.
-
-So when you come back, just say:
-
-“Nova, continue Week 9.”
-
-And we'll pick up from there. 🫡🎮🔥
+// FILE: .env
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.abc123.mongodb.net/communityhub?retryWrites=true&w=majority&appName=Cluster0
+PORT=3000
 
 
-just paste it and say "Nova, continue" and we'll pick up from Create Post. 🫡🔥
+// FILE: models/Post.js
+
+const mongoose = require("mongoose");
+
+const postSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    body: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    author: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    published: {
+      type: Boolean,
+      default: false
+    }
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model("Post", postSchema);
+
+
+// FILE: routes/postRoutes.js
+
+const express = require("express");
+const router = express.Router();
+const Post = require("../models/Post");
+
+// GET all posts
+router.get("/", async (req, res) => {
+  try {
+    const posts = await Post.find().sort({ createdAt: -1 });
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch posts" });
+  }
+});
+
+// GET one post by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    res.json(post);
+  } catch (error) {
+    res.status(400).json({ error: "Invalid post ID" });
+  }
+});
+
+// CREATE post
+router.post("/", async (req, res) => {
+  try {
+    const newPost = await Post.create(req.body);
+    res.status(201).json(newPost);
+  } catch (error) {
+    res.status(400).json({ error: "Failed to create post" });
+  }
+});
+
+// UPDATE post
+router.put("/:id", async (req, res) => {
+  try {
+    const updatedPost = await Post.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedPost) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    res.json(updatedPost);
+  } catch (error) {
+    res.status(400).json({ error: "Failed to update post" });
+  }
+});
+
+// DELETE post
+router.delete("/:id", async (req, res) => {
+  try {
+    const deletedPost = await Post.findByIdAndDelete(req.params.id);
+
+    if (!deletedPost) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    res.json({ message: "Post deleted successfully" });
+  } catch (error) {
+    res.status(400).json({ error: "Failed to delete post" });
+  }
+});
+
+module.exports = router;
+
+
+// FILE: server.js
+
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const postRoutes = require("./routes/postRoutes");
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(express.json());
+
+// Simple request logger
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
+
+// Connect to MongoDB Atlas
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log("Connected to MongoDB Atlas");
+  })
+  .catch((error) => {
+    console.error("MongoDB connection error:", error.message);
+  });
+
+// Routes
+app.get("/", (req, res) => {
+  res.json({
+    message: "CommunityHub API is running"
+  });
+});
+
+app.use("/api/posts", postRoutes);
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
+
+
+// FILE: example-requests
+
+// GET all posts
+// GET http://localhost:3000/api/posts
+
+// GET one post
+// GET http://localhost:3000/api/posts/65f123abc4567890def12345
+
+// CREATE post
+// POST http://localhost:3000/api/posts
+// Body JSON:
+// {
+//   "title": "Hello MongoDB",
+//   "body": "This is my first database post!",
+//   "author": "Anne",
+//   "published": true
+// }
+
+// UPDATE post
+// PUT http://localhost:3000/api/posts/65f123abc4567890def12345
+// Body JSON:
+// {
+//   "title": "Updated Title",
+//   "body": "Updated body text",
+//   "author": "Anne",
+//   "published": false
+// }
+
+// DELETE post
+// DELETE http://localhost:3000/api/posts/65f123abc4567890def12345
