@@ -1,61 +1,131 @@
-Yep 😎 — when we continue, we’ll pick up exactly here:
+Absolutely 😎🤝 we'll stop here for today. And I'll lock in the exact restart point so we don't accidentally redo anything.
 
-📍 Week 10 — Task 19.3
+🟢 Week 10 — Today's Checkpoint
+Completed ✅
 
-We've already completed Exercise 1: Response Methods.
+We've now covered:
 
-Next step: Exercise 2 — Route Parameters.
+✅ Node.js + Express server
+✅ Basic routes
+✅ Response methods
+✅ Route parameters
+✅ Multiple route parameters
+✅ Query strings
+✅ Full in-memory Posts CRUD API
+GET all
+GET one
+POST
+PUT
+DELETE
+PATCH like
+✅ Tested the Posts API with curl
+✅ Middleware
+Logger
+Request time
+express.json()
+express.urlencoded()
+express.static()
+Route-specific authentication middleware
 
-We'll start with:
+The assignment places us at Task 20.1 — Exercise 3: Route-specific Middleware.
 
-app.get('/users/:id', (req, res) => {
-    const userId = req.params.id;
-    res.json({ message: `Getting user ${userId}` });
+📍 EXACT PLACE WE'LL RESUME
+
+Next session:
+
+Week 10 → Lesson 20 → Task 20.1 → Exercise 3
+
+Specifically, we have added:
+
+const requireAuth = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+
+
+    if (!authHeader) {
+        return res.status(401).json({
+            error: 'No authorization header'
+        });
+    }
+
+
+    next();
+};
+
+
+app.get('/api/protected', requireAuth, (req, res) => {
+    res.json({
+        message: 'This is protected data'
+    });
 });
+🔜 First thing next time
 
-Then we'll do the multiple-parameter route:
+We'll test /api/protected:
 
-/posts/:postId/comments/:commentId
+http://localhost:3000/api/protected
 
-After that:
+First without an Authorization header → confirm 401.
 
-Exercise 3 — Query Strings
-⬇️
-Task 19.4 — Building Posts API
-⬇️
-Lesson 20 — Middleware
-⬇️
-Error Handling
-⬇️
-Code Organization
-⬇️
-Environment Variables
-⬇️
-Daily Challenges + final checklist
+Then with an Authorization header → confirm the request gets through.
 
-So our exact restart point is:
+After that, the assignment has:
 
-🟢 Task 19.3 → Exercise 2: Route Parameters 
+Task 20.2 — Error Handling
+Custom ApiError
+Error route
+Async error wrapper
+Global error-handling middleware
+Validation middleware
+Task 20.3 — Organizing Code 🔴
 
-📍 Where we'll resume
+We'll take our currently huge server.js and split it into:
 
-Next session, we do not touch the completed work.
+src/
+├── routes/
+├── middleware/
+├── controllers/
+├── data/
+└── app.js
 
-We'll continue from:
 
-Week 10 → Lesson 19 → Task 19.3 → Exercise 2: Route Parameters
+server.js
 
-Specifically:
+That's a big milestone, because we'll be turning the project from one giant file into a proper Express application structure.
 
-app.get('/users/:id', (req, res) => {
-    const userId = req.params.id;
-    res.json({ message: `Getting user ${userId}` });
-});
+Then Task 20.4 — Environment Variables
 
-The assignment then has us move to multiple route parameters, followed by query strings.
+We'll:
 
-So today's checkpoint is officially:
+npm install dotenv
 
-🟢 Saved & pushed — ready for Task 19.3 Exercise 2
+create:
 
-You can safely close the Codespace for today. When we come back, we pick up from route parameters. 😎🤝
+.env
+.env.example
+
+load the variables, and update .gitignore so .env isn't committed.
+
+Then 🔥 Daily Challenges
+
+The assignment has:
+
+Day 1 — Hello Server
+Day 2 — User API
+Day 3 — Query Filtering
+Day 4 — Logger Middleware
+Day 5 — Comments Endpoint
+
+And finally we'll run through the Week 10 checklist, commit/push everything, and make sure the milestone is complete.
+
+🛑 Today's official stopping point
+
+🟢 Saved & ready
+
+Week 10 → Lesson 20 → Task 20.1 → Exercise 3 → Testing /api/protected
+
+When you come back, just say:
+
+“Nova, Week 10 — continue from where we stopped.”
+
+And we'll pick up right there, step-by-step, following the assignment. 😎🤝
+
+Get some rest, bro — today we moved through a lot of backend work. 🔥
